@@ -20,8 +20,8 @@ const searchRoutes = require('./routes/search');
 const publicProfileRoutes = require('./routes/publicProfile');
 const endorsementRoutes = require('./routes/endorsements');
 const resumeRoutes = require('./routes/resume');
-const analyticsRoutes = require('./routes/analytics'); // <-- இங்க கொண்டு வந்தாச்சு
-const hirehubRoutes = require('./routes/hirehub');   // <-- புதுசா HireHub ரூட் சேர்த்தாச்சு
+const analyticsRoutes = require('./routes/analytics'); 
+const hirehubRoutes = require('./routes/hirehub');   
 
 app.use('/api/auth', authRoutes);
 app.use('/api/skills', skillRoutes);
@@ -32,8 +32,8 @@ app.use('/api/search', searchRoutes);
 app.use('/api/public-profile', publicProfileRoutes);
 app.use('/api/endorsements', endorsementRoutes);
 app.use('/api/resume', resumeRoutes);
-app.use('/api/analytics', analyticsRoutes); // <-- இங்க மேப் பண்ணியாச்சு
-app.use('/api/hirehub', hirehubRoutes);     // <-- HireHub API-ஐ எண்ட் பாயிண்ட்ல கனெக்ட் பண்ணியாச்சு
+app.use('/api/analytics', analyticsRoutes); 
+app.use('/api/hirehub', hirehubRoutes);     
 
 const PORT = process.env.PORT || 3000;
 
