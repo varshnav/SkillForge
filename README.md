@@ -25,7 +25,7 @@ SkillForge is a student skill showcase platform where students can display their
 ## ⚙️ Setup Instructions
 
 1. Clone the repository
-   git clone https://github.com/yourusername/SkillForge.git
+   git clone https://github.com/varshnav/SkillForge.git
 
 2. Install dependencies
    npm install
@@ -44,4 +44,4 @@ SkillForge is a student skill showcase platform where students can display their
    http://localhost:3000
 
 ## 👩‍💻 Developer
-Built by Varshna for placement preparation 🚀
+Built by Varshna .https://github.com/varshnav. 🚀
