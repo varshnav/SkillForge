@@ -1,14 +1,8 @@
 const mysql = require('mysql2');
-const dotenv = require('dotenv');
 
-dotenv.config();
-
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: process.env.DB_PASSWORD,
-  database: 'skillforge'
-});
+const db = mysql.createConnection(
+  process.env.MYSQL_URL || 'mysql://root@localhost:3306/skillforge'
+);
 
 db.connect((err) => {
   if (err) {
