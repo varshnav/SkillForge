@@ -35,8 +35,14 @@ app.use('/api/resume', resumeRoutes);
 app.use('/api/analytics', analyticsRoutes); 
 app.use('/api/hirehub', hirehubRoutes);     
 
+// Serve login page by default when accessing the root URL
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/login.html'); 
+});
+
 const PORT = process.env.PORT || 3000;
 
+// Start the server
 app.listen(PORT, () => {
   console.log(`SkillForge server running on port ${PORT}`);
 });
