@@ -1,8 +1,9 @@
 const mysql = require('mysql2');
 
-const db = mysql.createConnection(
-  process.env.MYSQL_URL || 'mysql://root@localhost:3306/skillforge'
-);
+// Render-la irukra DATABASE_URL illa na MYSQL_URL edhuvanaalum eduthukum maadhiri:
+const connectionString = process.env.DATABASE_URL || process.env.MYSQL_URL || 'mysql://root@localhost:3306/skillforge';
+
+const db = mysql.createConnection(connectionString);
 
 db.connect((err) => {
   if (err) {
