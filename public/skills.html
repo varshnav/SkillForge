@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skills - SkillForge</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">Skill<span>Forge</span></div>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+    <a href="dashboard.html" class="back-btn">←</a>
+
+    <div class="page-container">
+        <h2>🛠️ My Skills</h2>
+        <div class="add-form">
+            <input type="text" id="skillName" placeholder="Skill Name (e.g. JavaScript)">
+            <select id="proficiency">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+            </select>
+            <button onclick="addSkill()">Add Skill</button>
+        </div>
+        <p id="errorMsg" style="color:red;margin-bottom:10px;display:none">Please enter a skill name!</p>
+        <div id="skillsList" class="items-grid"></div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = 'login.html';
+
+        async function addSkill() {
+            const skill_name = document.getElementById('skillName').value.trim();
+            const proficiency = document.getElementById('proficiency').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (!skill_name) {
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            errorMsg.style.display = 'none';
+
+            const res = await fetch('/api/skills', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify({ skill_name, proficiency })
+            });
+            if (res.ok) {
+                document.getElementById('skillName').value = '';
+                loadSkills();
+            }
+        }
+
+        async function loadSkills() {
+            const res = await fetch('/api/skills', {
+                headers: { 'Authorization': token }
+            });
+            const skills = await res.json();
+            const html = skills.map(s => `
+                <div class="item-card">
+                    <h3>${s.skill_name} ${s.verified ? '✅' : ''}</h3>
+                    <span class="badge">${s.proficiency}</span>
+                    ${s.verified ? '<p style="color:#6c63ff;font-size:12px;margin-top:6px">⭐ Verified Skill</p>' : ''}
+                    <button class="delete-btn" onclick="deleteSkill(${s.id})">🗑️</button>
+                </div>
+            `).join('');
+            document.getElementById('skillsList').innerHTML = html;
+        }
+
+        async function deleteSkill(id) {
+            await fetch('/api/skills/' + id, {
+                method: 'DELETE',
+                headers: { 'Authorization': token }
+            });
+            loadSkills();
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        loadSkills();
+    </script>
+</body>
+</html>

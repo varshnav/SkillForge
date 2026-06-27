@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achievements - SkillForge</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">Skill<span>Forge</span></div>
+        <div class="nav-links">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="#" onclick="logout()">Logout</a>
+</div>
+    </nav>
+<a href="dashboard.html" class="back-btn">←</a>
+
+    <div class="page-container">
+        <h2>🏆 My Achievements</h2>
+        <div class="add-form">
+            <input type="text" id="title" placeholder="Achievement Title (e.g. AWS Internship)">
+            <input type="text" id="description" placeholder="Description">
+            <button onclick="addAchievement()">Add Achievement</button>
+        </div>
+        <div id="achievementsList" class="items-grid"></div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = 'login.html';
+
+        async function addAchievement() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+
+            const res = await fetch('/api/achievements', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify({ title, description })
+            });
+            if (res.ok) {
+                document.getElementById('title').value = '';
+                document.getElementById('description').value = '';
+                loadAchievements();
+            }
+        }
+
+        async function loadAchievements() {
+            const res = await fetch('/api/achievements', {
+                headers: { 'Authorization': token }
+            });
+            const achievements = await res.json();
+            const html = achievements.map(a => `
+                <div class="item-card">
+                    <h3>${a.title}</h3>
+                    <p>${a.description}</p>
+                    <button class="delete-btn" onclick="deleteAchievement(${a.id})">🗑️</button>
+                </div>
+            `).join('');
+            document.getElementById('achievementsList').innerHTML = html;
+        }
+
+        async function deleteAchievement(id) {
+            await fetch('/api/achievements/' + id, {
+                method: 'DELETE',
+                headers: { 'Authorization': token }
+            });
+            loadAchievements();
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        loadAchievements();
+    </script>
+</body>
+</html>

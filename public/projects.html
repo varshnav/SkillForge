@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - SkillForge</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">Skill<span>Forge</span></div>
+        <div class="nav-links">
+    <a href="dashboard.html">← Dashboard</a>
+    <a href="#" onclick="logout()">Logout</a>
+</div>
+</nav>
+<a href="dashboard.html" class="back-btn">←</a>
+
+
+    <div class="page-container">
+        <h2>📁 My Projects</h2>
+        <div class="add-form">
+            <input type="text" id="title" placeholder="Project Title">
+            <input type="text" id="description" placeholder="Project Description">
+            <input type="text" id="link" placeholder="Project Link (GitHub/Live)">
+            <button onclick="addProject()">Add Project</button>
+        </div>
+        <div id="projectsList" class="items-grid"></div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = 'login.html';
+
+        async function addProject() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const link = document.getElementById('link').value;
+
+            const res = await fetch('/api/projects', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify({ title, description, link })
+            });
+            if (res.ok) {
+                document.getElementById('title').value = '';
+                document.getElementById('description').value = '';
+                document.getElementById('link').value = '';
+                loadProjects();
+            }
+        }
+
+        async function loadProjects() {
+            const res = await fetch('/api/projects', {
+                headers: { 'Authorization': token }
+            });
+            const projects = await res.json();
+            const html = projects.map(p => `
+                <div class="item-card">
+                    <h3>${p.title}</h3>
+                    <p>${p.description}</p>
+                    <a href="${p.link}" target="_blank" class="project-link">View Project →</a>
+                    <button class="delete-btn" onclick="deleteProject(${p.id})">🗑️</button>
+                </div>
+            `).join('');
+            document.getElementById('projectsList').innerHTML = html;
+        }
+
+        async function deleteProject(id) {
+            await fetch('/api/projects/' + id, {
+                method: 'DELETE',
+                headers: { 'Authorization': token }
+            });
+            loadProjects();
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        loadProjects();
+    </script>
+</body>
+</html>

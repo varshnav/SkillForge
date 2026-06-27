@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SkillForge</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">Skill<span>Forge</span></div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="search.html">Explore</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Welcome, <span id="studentName"></span>! 👋</h1>
+            <p>Manage your SkillForge profile</p>
+        </div>
+
+        <!-- Analytics Bar -->
+        <div class="analytics-bar">
+            <div class="analytics-card">
+                <h4 id="totalViews">0</h4>
+                <p>Profile Views</p>
+            </div>
+            <div class="analytics-card">
+                <h4 id="totalEndorsements">0</h4>
+                <p>Total Endorsements</p>
+            </div>
+            <div class="analytics-card">
+                <h4 id="verifiedSkills">0</h4>
+                <p>Verified Skills</p>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dash-card" onclick="window.location.href='profile.html'">
+                <h3>👤 My Profile</h3>
+                <p>Update your bio, photo and social links</p>
+            </div>
+            <div class="dash-card" onclick="window.location.href='skills.html'">
+                <h3>🛠️ My Skills</h3>
+                <p>Add and manage your skills</p>
+            </div>
+            <div class="dash-card" onclick="window.location.href='projects.html'">
+                <h3>📁 My Projects</h3>
+                <p>Showcase your projects</p>
+            </div>
+            <div class="dash-card" onclick="window.location.href='achievements.html'">
+                <h3>🏆 Achievements</h3>
+                <p>Add internships and certifications</p>
+            </div>
+        </div>
+
+        <div class="resume-section">
+            <div class="resume-left">
+                <h3>📄 Your Resume is Ready!</h3>
+                <p>Auto-generated from your profile — skills, projects & achievements included!</p>
+            </div>
+            <button onclick="downloadResume()" class="resume-btn">
+                ⬇️ Download Resume PDF
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const name = localStorage.getItem('studentName');
+        const token = localStorage.getItem('token');
+        if (!name) window.location.href = 'login.html';
+        document.getElementById('studentName').innerText = name;
+
+        async function loadAnalytics() {
+            const res = await fetch('/api/analytics', {
+                headers: { 'Authorization': token }
+            });
+            const data = await res.json();
+            document.getElementById('totalViews').innerText = data.total_views;
+            document.getElementById('totalEndorsements').innerText = data.total_endorsements;
+            document.getElementById('verifiedSkills').innerText = data.verified_skills;
+        }
+
+        async function downloadResume() {
+            const res = await fetch('/api/resume', {
+                headers: { 'Authorization': token }
+            });
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'SkillForge_Resume.pdf';
+            a.click();
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        loadAnalytics();
+    </script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - SkillForge</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">Skill<span>Forge</span></div>
+        <div class="nav-links">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="#" onclick="logout()">Logout</a>
+</div>
+    </nav>
+<a href="dashboard.html" class="back-btn">←</a>
+
+    <div class="page-container">
+        <h2>👤 My Profile</h2>
+        
+        <!-- Profile Completion Score -->
+        <div class="completion-card">
+            <h3>Profile Completion</h3>
+            <div class="completion-bar">
+                <div class="completion-fill" id="completionFill"></div>
+            </div>
+            <p id="completionScore">0% Complete</p>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="profile-edit-card">
+            <h3>Edit Profile</h3>
+            <div class="add-form">
+                <input type="text" id="bio" placeholder="Your Bio (e.g. Passionate developer...)">
+                <input type="text" id="github" placeholder="GitHub URL">
+                <input type="text" id="linkedin" placeholder="LinkedIn URL">
+                <button onclick="saveProfile()">Save Profile</button>
+            </div>
+        </div>
+
+        <!-- Profile View -->
+        <div id="profileView"></div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const studentId = localStorage.getItem('studentId');
+        const studentName = localStorage.getItem('studentName');
+        if (!token) window.location.href = 'login.html';
+
+        async function saveProfile() {
+            const bio = document.getElementById('bio').value;
+            const github = document.getElementById('github').value;
+            const linkedin = document.getElementById('linkedin').value;
+
+            const res = await fetch('/api/profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify({ bio, github, linkedin })
+            });
+            if (res.ok) loadProfile();
+        }
+
+        async function loadProfile() {
+            const res = await fetch('/api/profile', {
+                headers: { 'Authorization': token }
+            });
+            const data = await res.json();
+
+            // Completion Score
+            let score = 0;
+            if (studentName) score += 25;
+            if (data.bio) score += 25;
+            if (data.github) score += 25;
+            if (data.linkedin) score += 25;
+
+            document.getElementById('completionFill').style.width = score + '%';
+            document.getElementById('completionScore').innerText = score + '% Complete';
+
+            document.getElementById('profileView').innerHTML = `
+                <div class="profile-view-card">
+                    <div class="profile-avatar">${studentName.charAt(0).toUpperCase()}</div>
+                    <h2>${studentName}</h2>
+                    <p class="profile-bio">${data.bio || 'No bio added yet'}</p>
+                    <div class="profile-links">
+                        ${data.github ? `<a href="${data.github}" target="_blank" class="profile-link-btn">GitHub</a>` : ''}
+                        ${data.linkedin ? `<a href="${data.linkedin}" target="_blank" class="profile-link-btn linkedin">LinkedIn</a>` : ''}
+                        <a href="/public-profile.html?id=${studentId}" target="_blank" class="profile-link-btn share">🔗 Public Profile</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        loadProfile();
+    </script>
+</body>
+</html>

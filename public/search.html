@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search - SkillForge</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">Skill<span>Forge</span></div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <h2>🔍 Explore Students</h2>
+        <div class="add-form">
+            <input type="text" id="searchSkill" placeholder="Search by skill (e.g. JavaScript)">
+            <button onclick="searchStudents()">Search</button>
+        </div>
+        <div id="studentsList" class="items-grid"></div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+
+        async function searchStudents() {
+            const skill = document.getElementById('searchSkill').value;
+            const res = await fetch('/api/search?skill=' + skill);
+            const students = await res.json();
+
+            if (students.length === 0) {
+                document.getElementById('studentsList').innerHTML = 
+                    '<p style="color:#aaa">No students found!</p>';
+                return;
+            }
+
+            const html = students.map(s => `
+                <div class="item-card">
+                    <h3>${s.name}</h3>
+                    <p>${s.bio || 'No bio yet'}</p>
+                    <span class="badge">${s.skill_name} - ${s.proficiency}</span>
+                    <br><br>
+                    ${s.github ? `<a href="${s.github}" target="_blank" class="project-link">GitHub →</a>` : ''}
+                    ${s.linkedin ? `<a href="${s.linkedin}" target="_blank" class="project-link"> LinkedIn →</a>` : ''}
+                </div>
+            `).join('');
+            document.getElementById('studentsList').innerHTML = html;
+        }
+
+        async function loadAll() {
+            const res = await fetch('/api/search?skill=');
+            const students = await res.json();
+            const html = students.map(s => `
+                <div class="item-card">
+                    <h3>${s.name}</h3>
+                    <p>${s.bio || 'No bio yet'}</p>
+                    <span class="badge">${s.skill_name} - ${s.proficiency}</span>
+                    <br><br>
+                    ${s.github ? `<a href="${s.github}" target="_blank" class="project-link">GitHub →</a>` : ''}
+                    ${s.linkedin ? `<a href="${s.linkedin}" target="_blank" class="project-link"> LinkedIn →</a>` : ''}
+                </div>
+            `).join('');
+            document.getElementById('studentsList').innerHTML = html;
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        loadAll();
+    </script>
+</body>
+</html>
